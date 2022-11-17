@@ -8,24 +8,25 @@ x-log: &default
       max-size: "10m"
       max-file: "10"
 
-x-env-general: &env-general
-  TZ: ${TZ:-Europe/Moscow}
-
 services:
   fluentd-collector:
     build: ./docker
+    restart: ${RESTART_POLICY-always}
     <<: *default
-    hostname: fluentd-collector
+    hostname: fluentd-collector-${LOCATION:-prod}
     volumes:
       - buffer:/var/log/fluent/
+      - ./config/fluent.conf:/fluentd/etc/fluent.conf
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     ports:
       # forward ports
-      - "24224:24224"
-      - "24224:24224/udp"
-      # http check ports      
-      - "8888:8888"
+      - ${FORWARD_PORT_FLUENTD:-34224}:34224
+      - ${FORWARD_PORT_FLUENTD:-34224}:34224/udp
+      # http check ports
+      - ${FORWARD_FLUENTD_MONITOR_HTTP:-8888}:8888
       # prometheus check ports
-      - "24231:24231"
+      - ${FORWARD_FLUENTD_MONITOR_PROM:-24231}:24231
     security_opt:
       - no-new-privileges:true
     networks:

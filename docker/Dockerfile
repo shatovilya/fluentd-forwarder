@@ -19,6 +19,8 @@ RUN apk add --no-cache --update --virtual .build-deps \
 
 COPY ./plugins /fluentd/plugins
 
+#COPY ./fluent.conf /fluentd/etc/fluent.conf
+
 COPY entrypoint.sh /bin/
 
 RUN chmod +x /bin/entrypoint.sh
